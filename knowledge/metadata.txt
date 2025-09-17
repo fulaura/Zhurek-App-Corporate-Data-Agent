@@ -1,0 +1,201 @@
+meta: kind=table table=clients
+[TABLE]
+name: clients
+business_name: Клиенты
+purpose: Справочник клиентов (1 строка = 1 клиент)
+grain: 1 строка = уникальный клиент
+primary_key: client_id
+temporal_fields: dob (string 'YYYY-MM-DD')
+pii: fullname, dob
+tags: catalog, ref, has_pii
+usage_hints:
+  - PII не выводить сырым текстом; агрегации или маски.
+
+
+meta: kind=column table=clients name=client_id
+[COLUMN]
+table: clients
+name: client_id
+type: integer
+business_meaning: Уникальный идентификатор клиента (технический ключ)
+constraints: primary_key, not null
+tags: [key, id, joinable, non_pii]
+usage_hints:
+  - Использовать в JOIN и COUNT(DISTINCT).
+
+
+meta: kind=column table=clients name=fullname pii=true
+[COLUMN]
+table: clients
+name: fullname
+type: varchar
+business_meaning: Полное имя клиента (ФИО)
+pii: true
+tags: [pii, name, dimension]
+usage_hints:
+  - По умолчанию скрывать/маскировать.
+
+
+meta: kind=column table=clients name=dob pii=true
+[COLUMN]
+table: clients
+name: dob
+type: string (ISO 'YYYY-MM-DD')
+business_meaning: Дата рождения клиента (текст)
+pii: true
+tags: [pii, date_text, time_key, needs_cast]
+cast_examples:
+  postgres: dob::date
+  bigquery: DATE(dob)
+  snowflake: TO_DATE(dob)
+
+
+
+meta: kind=table table=products pii=false
+[TABLE]
+name: products
+business_name: Товары (канцелярия)
+purpose: Справочник товарных позиций (SKU) с розничной ценой и категорией
+grain: 1 строка = 1 товар (SKU)
+primary_key: product_id
+pii: нет
+sample_columns: product_id, name, category, price
+notes:
+  - Категории (по примеру): Письменные принадлежности; Бумажная продукция; Офисные аксессуары; Хранение и организация; Чертёжные и художественные принадлежности.
+  - Цена хранится числом; валюта не указана (уточняется в бизнес-справочнике).
+tags: [catalog, non_pii]
+
+
+meta: kind=column table=products name=product_id pii=false
+[COLUMN]
+table: products
+name: product_id
+type: integer
+business_meaning: Уникальный идентификатор товара (SKU)
+constraints: primary_key, not null
+examples: 1, 10, 25
+tags: [key, id, joinable, non_pii]
+usage_hints:
+  - Использовать в JOIN с фактами продаж (например, sales.product_id).
+  - Подходит для COUNT(DISTINCT product_id).
+
+
+meta: kind=column table=products name=name pii=false
+[COLUMN]
+table: products
+name: name
+type: varchar
+business_meaning: Наименование товара (человекочитаемое)
+examples: "Ручка шариковая", "Бумага для принтера", "Органайзер настольный"
+tags: [dimension, label, non_pii]
+usage_hints:
+  - Поиск по подстроке/ILIKE; учитывать формы слов на русском.
+  - В отчётах комбинировать с category.
+
+
+meta: kind=column table=products name=category pii=false
+[COLUMN]
+table: products
+name: category
+type: varchar
+business_meaning: Классификационная категория товара
+examples:
+  - "Письменные принадлежности"
+  - "Бумажная продукция"
+  - "Офисные аксессуары"
+  - "Хранение и организация"
+  - "Чертёжные и художественные принадлежности"
+tags: [dimension, taxonomy, non_pii]
+usage_hints:
+  - Использовать в GROUP BY и фильтрах.
+  - При необходимости вынести в отдельный справочник категорий.
+
+
+meta: kind=column table=products name=price pii=false
+[COLUMN]
+table: products
+name: price
+type: integer   # используйте numeric(10,2), если появятся дробные цены
+business_meaning: Розничная цена за единицу товара (валюта не указана)
+value_profile:
+  min: 10
+  p50: 70
+  p95: 300
+  max: 400
+  mean_approx: 106.2
+examples: 25, 90, 400
+tags: [measure, money, currency_unknown, non_pii]
+usage_hints:
+  - Атрибут позиции, НЕ суммируйте price по строкам как выручку.
+  - Для выручки используйте qty * price в фактах продаж.
+  - Для фильтров — обычные числовые условия (>=, BETWEEN).
+
+
+
+meta: kind=column table=sales name=sale_id
+[COLUMN]
+table: sales
+name: sale_id
+type: integer
+business_meaning: Уникальный идентификатор продажи (технический ключ)
+constraints: primary_key, not null
+tags: [key, id, joinable]
+usage_hints:
+  - Использовать в JOIN и COUNT(DISTINCT).
+
+
+meta: kind=column table=sales name=client_id
+[COLUMN]
+table: sales
+name: client_id
+type: integer
+business_meaning: Идентификатор клиента, связанного с продажей
+constraints: not null
+usage_hints:
+  - Использовать для связи с таблицей клиентов.
+
+
+meta: kind=column table=sales name=product_id
+[COLUMN]
+table: sales
+name: product_id
+type: integer
+business_meaning: Идентификатор продукта, проданного в транзакции
+constraints: not null
+usage_hints:
+  - Использовать для связи с таблицей продуктов.
+
+
+meta: kind=column table=sales name=quantity
+[COLUMN]
+table: sales
+name: quantity
+type: integer
+business_meaning: Количество проданного товара
+usage_hints:
+  - Использовать для анализа объема продаж.
+
+
+meta: kind=column table=sales name=sale_dt
+[COLUMN]
+table: sales
+name: sale_dt
+type: string (ISO 'YYYY-MM-DD')
+business_meaning: Дата продажи (текст)
+tags: [date_text, time_key, needs_cast]
+cast_examples:
+  postgres: sale_dt::date
+  bigquery: DATE(sale_dt)
+  snowflake: TO_DATE(sale_dt)
+usage_hints:
+  - Использовать для временных фильтров и агрегаций.
+
+
+meta: kind=column table=sales name=total_cost
+[COLUMN]
+table: sales
+name: total_cost
+type: integer
+business_meaning: Итоговая сумма по продаже
+usage_hints:
+  - Использовать для анализа выручки и прибыли.

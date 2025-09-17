@@ -1,0 +1,634 @@
+app:
+  description: Main chatflow for submission
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: CASE 6
+  use_icon_as_answer_icon: true
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai_api_compatible:0.0.22@88c295aff1ea52ea6ab56e3869ee37702d91f7b678c547254cf2b48271c8e81f
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: alterxyz/data_connector_cloudflare_d1:0.0.3@ee06f57e8c408d427176dcf2278eb547dedd6ecfa187e21cd8276e29646365b0
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 100
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: true
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1757950864247--1757951045491-target
+      selected: false
+      source: '1757950864247'
+      sourceHandle: source
+      target: '1757951045491'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: tool
+      id: 1758030639691-source-17580305797790-target
+      selected: false
+      source: '1758030639691'
+      sourceHandle: source
+      target: '17580305797790'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: knowledge-retrieval
+      id: 1757946747917-source-1757953958036-target
+      selected: false
+      source: '1757946747917'
+      sourceHandle: source
+      target: '1757953958036'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: code
+      id: 17580305797790-source-1758049558293-target
+      selected: false
+      source: '17580305797790'
+      sourceHandle: source
+      target: '1758049558293'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1758049558293-source-1757950864247-target
+      selected: false
+      source: '1758049558293'
+      sourceHandle: source
+      target: '1757950864247'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1757953958036-source-1757952296647-target
+      selected: false
+      source: '1757953958036'
+      sourceHandle: source
+      target: '1757952296647'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1757952296647-source-1758030639691-target
+      source: '1757952296647'
+      sourceHandle: source
+      target: '1758030639691'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: code
+      id: 17580305797790-source-1758060434013-target
+      source: '17580305797790'
+      sourceHandle: source
+      target: '1758060434013'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - document
+          allowed_file_upload_methods:
+          - remote_url
+          label: advanced query
+          max_length: 48
+          options:
+          - 'yes'
+          - 'no'
+          required: false
+          type: select
+          variable: advanced_query
+      height: 90
+      id: '1757946747917'
+      position:
+        x: 30
+        y: 293
+      positionAbsolute:
+        x: 30
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1758049558293'
+          - result
+        default_value:
+        - key: text
+          type: string
+          value: Ошибка при генерации ответа, пожалуйста, попробуйте еще раз.
+        desc: Takes the SQL query response and generates a human-friendly response.
+        error_strategy: default-value
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: llama4scout
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        prompt_template:
+        - id: 49d7b7a9-aefd-453f-9872-82db002aaa93
+          role: system
+          text: 'Ты — BI-ассистент. Твоя задача — преобразовать технический ответ
+            из базы данных в ясный и понятный для человека текст. Проанализируй предоставленные
+            данные и ответь на первоначальный вопрос пользователя. **Первоначальный
+            вопрос пользователя:** {{#sys.query#}} /** ных (в формате JSON):** {{#context#}}
+
+            (if there is a typo mistake then treat is as normal text that u assume
+            is, or if it is a info that is not in the data base then say that to person)
+
+            if there is mismatch in word like category and person say it like class,
+            then matcht hem and all similar meaning automatically.
+
+            When data is given and user request is general like for each class, always
+            match classes. (Incorrect: Class1,class2...)(correct: name of the class,
+            name of the class)
+
+
+            **Инструкции:** 1. **Проанализируй ответ запроса** 2. **Сформулируй ответ
+            на основе данных.** Если данные найдены, представь их в удобном для чтения
+            виде. Если список длинный, сгруппируй товары по категориям. 3. **Обработай
+            случай "нет данных".** Если массив пуст, сообщи пользователю, что по его
+            запросу ничего не найдено. 4. **Стиль ответа.** Ответ должен быть вежливым,
+            кратким и строго по делу. Не добавляй лишней информации, которой нет в
+            данных. 5. **Язык ответа:** Русский. **Пример ответа для запроса "покажи
+            все товары":** Вот список всех товаров, сгруппированный по категориям:
+            **Письменные принадлежности:** * Ручка шариковая (25) * Ручка гелевая
+            (40) * Карандаш простой (15) * ...и так далее. **Бумажная продукция:**
+            * Тетрадь в клетку (30) * Блокнот (90) * ...и так далее.
+
+
+            В конце объясни как ты это высчитал'
+        selected: false
+        structured_output_enabled: false
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 186
+      id: '1757950864247'
+      position:
+        x: 1854
+        y: 293
+      positionAbsolute:
+        x: 1854
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1757950864247.text#}}'
+        desc: ''
+        selected: false
+        title: Ответ
+        type: answer
+        variables: []
+      height: 105
+      id: '1757951045491'
+      position:
+        x: 2158
+        y: 293
+      positionAbsolute:
+        x: 2158
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1757953958036'
+          - result
+        desc: Takes the knowledge base and the user query to generate a SQL query.
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: llama4scout
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        prompt_template:
+        - id: d0e65fe9-4e9f-42ff-98eb-c7a807de7f84
+          role: system
+          text: 'You are an agent that converts natural language requests into SQL
+            queries. Convert user requests to SQL queries.
+
+            User request: {{#sys.query#}}
+
+            Context: {{#context#}}
+
+            Your responsibilities:
+
+            Identify and map tables, columns, joins, aggregations, filters, ordering,
+            limits, and time ranges.
+
+            Resolve ambiguity with reasonable defaults (e.g., “latest” → ORDER BY
+            <date_column> DESC LIMIT 1).
+
+            Perform word-to-word mapping when terms differ (e.g., “class” → category).
+
+            Always output only the final SQL query code.
+
+            Do not include explanations, reasoning, or comments.
+
+            Do not wrap the SQL in quotes or other delimiters.
+
+            Always return a valid SQL query.
+
+            Date handling rules:
+
+            All date columns (e.g., sale_dt, dob) are stored as text in ISO format
+            ''YYYY-MM-DD''.
+
+            When filtering by year, use strftime(''%Y'', <date_column>).
+
+            For ranges, compare the text directly (e.g., sale_dt >= ''2024-01-01''
+            AND sale_dt < ''2025-01-01'').
+
+            Join rules:
+
+            Always use correct join conditions: match foreign keys to the corresponding
+            column in the related table.
+
+            If a column exists in both tables but names differ, map them according
+            to schema knowledge (e.g., s.product_id = p.product_id).
+
+            If ambiguous, prefer joining the foreign key in one table to the matching
+            column in the related table rather than always using id.
+
+            Validate that the join columns exist in the respective tables before generating
+            the query.'
+        - id: 35d7ed30-4131-4c0f-9403-9ae54260eea7
+          role: assistant
+          text: 'NAMING & SYNONYMS:
+
+            - If user says "orders", map to "sales" if no "orders" table exists.
+
+            - "qty" → quantity; "client" → client_id; "price per unit" → price; "date"
+            → sale_dt.
+
+            - Prefer existing columns; if not found, choose the closest semantic match.
+
+            - In the sales table there is no qty column only quantity
+
+            WINDOWS:
+
+            - Prefer window functions that exist in SQLite (ROW_NUMBER, RANK, SUM
+            OVER ...).'
+        selected: false
+        title: LLM 2
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 134
+      id: '1757952296647'
+      position:
+        x: 638
+        y: 293
+      positionAbsolute:
+        x: 638
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - zeSOSesePLTCk3mbRzvxZ44rj46GqPwDmFcXYtbU3AxU4PBu8ELLqGsdhBRfF3mz
+        desc: Active knowledge base search about the database (its tables and the
+          attributes). May also contain business specific terminology for more context.
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: weighted_score
+          reranking_model:
+            model: ''
+            provider: ''
+          score_threshold: null
+          top_k: 4
+          weights:
+            keyword_setting:
+              keyword_weight: 0.3
+            vector_setting:
+              embedding_model_name: all-MiniLM-L6-v2
+              embedding_provider_name: langgenius/openai_api_compatible/openai_api_compatible
+              vector_weight: 0.7
+        query_variable_selector:
+        - sys
+        - query
+        retrieval_mode: multiple
+        selected: false
+        title: 'Knowledge Search '
+        type: knowledge-retrieval
+      height: 184
+      id: '1757953958036'
+      position:
+        x: 334
+        y: 293
+      positionAbsolute:
+        x: 334
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: Executes the generated SQL query against the database.
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: form
+          human_description:
+            en_US: Cloudflare D1 database ID.
+            ja_JP: Cloudflare D1 database ID.
+            pt_BR: ID do banco de dados Cloudflare D1.
+            zh_Hans: Cloudflare D1 数据库 ID。
+          label:
+            en_US: Database ID
+            ja_JP: Database ID
+            pt_BR: ID do banco de dados
+            zh_Hans: 数据库 ID
+          llm_description: Specify the Cloudflare D1 database ID. Important:You MUST
+            obtain this ID from the user if not already available.
+          max: null
+          min: null
+          name: database_id
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: SQL statement to execute on Cloudflare D1.
+            ja_JP: SQL statement to execute on Cloudflare D1.
+            pt_BR: Instrução SQL para executar no Cloudflare D1.
+            zh_Hans: 在 Cloudflare D1 上执行的 SQL 语句。
+          label:
+            en_US: Statement
+            ja_JP: Statement
+            pt_BR: Instrução SQL
+            zh_Hans: SQL 语句
+          llm_description: Provide a complete and valid SQL statement for Cloudflare
+            D1 execution. Important:Ensure it is parameter-free (no placeholders like
+            `?`, `:param`, etc.).
+          max: null
+          min: null
+          name: query
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          database_id: ''
+          query: ''
+        provider_id: alterxyz/data_connector_cloudflare_d1/data_connector_cloudflare_d1
+        provider_name: alterxyz/data_connector_cloudflare_d1/data_connector_cloudflare_d1
+        provider_type: builtin
+        selected: false
+        title: D1 Query Executor (1)
+        tool_configurations:
+          database_id: 88d44490-724d-4d7e-9ea3-dddab81c18e5
+        tool_description: Executes SQL statements on Cloudflare D1 and returns the
+          full result set. Connects to the external data source - Cloudflare D1.
+        tool_label: Cloudflare D1 Query Executor
+        tool_name: query
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#1758030639691.query#}}'
+        type: tool
+      height: 134
+      id: '17580305797790'
+      position:
+        x: 1246
+        y: 293
+      positionAbsolute:
+        x: 1246
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "\ndef main(input) -> dict:\n    input = input.replace(\"\\n\",\" \"\
+          )\n    input = input.replace(\"sql\",\"\")\n    input = input.replace(\"\
+          ```\",\"\")\n    return {\n        \"query\": input,\n    }\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          query:
+            children: null
+            type: string
+        selected: false
+        title: Code
+        type: code
+        variables:
+        - value_selector:
+          - '1757952296647'
+          - text
+          variable: input
+      height: 54
+      id: '1758030639691'
+      position:
+        x: 942
+        y: 293
+      positionAbsolute:
+        x: 942
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "function main({ json }) {\n    function traverse(obj) {\n        let\
+          \ output = \"\";\n        if (Array.isArray(obj)) {\n            obj.forEach((item,\
+          \ i) => {\n                output += traverse(item) + \" \";\n         \
+          \   });\n        } else if (obj !== null && typeof obj === \"object\") {\n\
+          \            for (const key in obj) {\n                output += key + \"\
+          \ \" + traverse(obj[key]) + \" \";\n            }\n        } else {\n  \
+          \          output += obj + \" \";\n        }\n        return output.trim();\n\
+          \    }\n\n    try {\n        return { result: traverse(json) };\n    } catch\
+          \ (e) {\n        return { result: \"\" };\n    }\n}\n"
+        code_language: javascript
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: true
+        title: Code 2
+        type: code
+        variables:
+        - value_selector:
+          - '17580305797790'
+          - json
+          variable: json
+      height: 54
+      id: '1758049558293'
+      position:
+        x: 1550
+        y: 293
+      positionAbsolute:
+        x: 1550
+        y: 293
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import requests\nimport json\n\ndef main(data: list) -> dict:\n   \
+          \ \"\"\"\n    Extracts the relevant data for visualization and sends it\
+          \ to the ngrok server.\n\n    Args:\n        data: The JSON payload from\
+          \ the platform, expected as a list.\n\n    Returns:\n        A dictionary\
+          \ confirming the action.\n    \"\"\"\n    # --- IMPORTANT: This URL should\
+          \ match your ngrok forwarding address ---\n    ngrok_url = \"https://09796931f0c4.ngrok-free.app/data\"\
+          \ \n\n    try:\n        # 1. Navigate through the object to find the 'results'\
+          \ array.\n        # The error indicates 'data' is a list, so we start with\
+          \ data[0].\n        results_for_viz = data[0]['metadata']['result'][0]['results']\n\
+          \n        # 2. Send ONLY this extracted 'results' array to your server.\n\
+          \        response = requests.post(ngrok_url, json=results_for_viz)\n   \
+          \     response.raise_for_status()  # Raise an exception for bad status codes\n\
+          \        \n        print(\"Visualization data sent successfully!\")\n  \
+          \      return {\n            \"message\": \"Visualization data sent successfully!\"\
+          \n        }\n\n    except (requests.exceptions.RequestException, KeyError,\
+          \ IndexError, TypeError) as e:\n        # Handle cases where the data structure\
+          \ is wrong, the server is down, or a type mismatch occurs.\n        error_message\
+          \ = f\"An error occurred: {e}. Please check if the input data structure\
+          \ is as expected.\"\n        print(error_message)\n        return {\n  \
+          \          \"message\": error_message\n        }\n\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          message:
+            children: null
+            type: string
+        selected: false
+        title: Code 3
+        type: code
+        variables:
+        - value_selector:
+          - '17580305797790'
+          - json
+          variable: data
+      height: 54
+      id: '1758060434013'
+      position:
+        x: 1550
+        y: 387
+      positionAbsolute:
+        x: 1550
+        y: 387
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: -279.6414700542649
+      y: 217.8491536759362
+      zoom: 0.41874818850370416

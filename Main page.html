@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zhurek App: Natural Language to SQL Agent</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Applying the Inter font to the whole page */
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #111827; /* Dark background */
+        color: #d1d5db; /* Default text color */
+      }
+      /* Style for the iframe container to have a subtle glow effect */
+      .iframe-container {
+        box-shadow: 0 0 25px rgba(79, 70, 229, 0.4),
+          0 0 10px rgba(79, 70, 229, 0.2);
+      }
+      /* Custom styles for Chart.js tooltips in dark mode */
+      .chartjs-tooltip {
+        background: rgba(31, 41, 55, 0.9);
+        border: 1px solid rgba(79, 70, 229, 0.5);
+        border-radius: 0.5rem;
+        color: white;
+        padding: 8px 12px;
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div class="container mx-auto px-4 py-8 md:py-12">
+      <!-- Header Section -->
+      <header class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">
+          Zhurek App: Corporate Data Agent
+        </h1>
+        <p class="text-lg text-indigo-300">
+          Hackathon Case #6: Natural Language → SQL
+        </p>
+        <div
+          class="mt-4 inline-flex items-center bg-green-500/10 text-green-400 text-sm font-medium px-4 py-1 rounded-full"
+        >
+          <span
+            class="w-2 h-2 mr-2 bg-green-500 rounded-full animate-pulse"
+          ></span>
+          Built on the shai.pro Platform
+        </div>
+      </header>
+
+      <!-- Main Content: Two-column layout -->
+      <main class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+        <!-- Left Column: Project Description & Visualization -->
+        <div class="lg:col-span-2 space-y-8">
+          <!-- Project Goal Card -->
+          <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-2xl font-bold text-white mb-3">Project Goal</h2>
+            <p class="text-gray-300 leading-relaxed">
+              To empower non-technical users to get instant data insights from
+              corporate databases by simply asking questions in plain English.
+              This agent bridges the gap between complex databases and human
+              curiosity.
+            </p>
+          </div>
+
+          <!-- Data Visualization Card -->
+          <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-2xl font-bold text-white mb-3">
+              Live Data Visualization
+            </h2>
+            <div id="chartContainer" class="relative">
+              <div
+                id="chartPlaceholder"
+                class="text-center text-gray-400 py-12"
+              >
+                <div
+                  id="ws-status"
+                  class="mb-4 text-sm font-medium py-1 px-3 rounded-full bg-yellow-500/10 text-yellow-400 inline-block"
+                >
+                  Connecting to server...
+                </div>
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+                  />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-white">
+                  Awaiting Data
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                  The chart will appear here in real-time once data is received.
+                </p>
+              </div>
+              <canvas id="resultsChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Business Value Card -->
+          <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-2xl font-bold text-white mb-4">Business Value</h2>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <svg
+                  class="w-5 h-5 text-indigo-400 mr-3 mt-1 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+                <span
+                  ><strong class="text-white"
+                    >Accelerated Decision-Making:</strong
+                  >
+                  Get answers in seconds, not hours.</span
+                >
+              </li>
+              <li class="flex items-start">
+                <svg
+                  class="w-5 h-5 text-indigo-400 mr-3 mt-1 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <span
+                  ><strong class="text-white">Increased Efficiency:</strong>
+                  Frees up BI and data teams for strategic analysis.</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Column: Chatbot Iframe -->
+        <div class="lg:col-span-3">
+          <div class="iframe-container rounded-xl overflow-hidden h-full">
+            <iframe
+              id="chatbot-iframe"
+              src="http://hackathon.shai.pro/chatbot/uCPYEHCID0iKkPpt"
+              style="width: 100%; height: 100%; min-height: 700px"
+              frameborder="0"
+              allow="microphone"
+            >
+            </iframe>
+          </div>
+        </div>
+      </main>
+
+      <footer class="text-center mt-12">
+        <p class="text-gray-500">Presented for the shai.pro Hackathon 2025</p>
+      </footer>
+    </div>
+
+    <script>
+      let resultsChart = null;
+      const chartCanvas = document.getElementById("resultsChart");
+      const chartPlaceholder = document.getElementById("chartPlaceholder");
+      const wsStatus = document.getElementById("ws-status");
+
+      function connectWebSocket() {
+        // IMPORTANT: Replace with your ngrok WebSocket URL
+        const wsUrl = "wss://09796931f0c4.ngrok-free.app/ws";
+        const socket = new WebSocket(wsUrl);
+
+        socket.onopen = function (event) {
+          console.log("WebSocket connection established.");
+          wsStatus.textContent = "Connected to Live Feed";
+          wsStatus.classList.remove(
+            "bg-yellow-500/10",
+            "text-yellow-400",
+            "bg-red-500/10",
+            "text-red-400"
+          );
+          wsStatus.classList.add("bg-green-500/10", "text-green-400");
+        };
+
+        socket.onmessage = function (event) {
+          console.log("Data received from server.");
+          try {
+            const data = JSON.parse(event.data);
+            // The data is now expected to be the simplified 'results' array
+            const chartData = extractChartData(data);
+            if (chartData) {
+              renderChart(chartData);
+            }
+          } catch (e) {
+            console.error("Failed to parse incoming JSON:", e);
+          }
+        };
+
+        socket.onclose = function (event) {
+          console.log(
+            "WebSocket connection closed. Reconnecting in 3 seconds..."
+          );
+          wsStatus.textContent = "Connection Lost. Retrying...";
+          wsStatus.classList.remove("bg-green-500/10", "text-green-400");
+          wsStatus.classList.add("bg-red-500/10", "text-red-400");
+          setTimeout(connectWebSocket, 3000); // Attempt to reconnect
+        };
+
+        socket.onerror = function (error) {
+          console.error("WebSocket error:", error);
+          wsStatus.textContent = "Connection Error";
+          wsStatus.classList.remove(
+            "bg-green-500/10",
+            "text-green-400",
+            "bg-yellow-500/10",
+            "text-yellow-400"
+          );
+          wsStatus.classList.add("bg-red-500/10", "text-red-400");
+        };
+      }
+
+      // Start the WebSocket connection when the page loads
+      document.addEventListener("DOMContentLoaded", connectWebSocket);
+
+      /**
+       * Parses the incoming data object (now a simple array) to find chartable information.
+       * @param {Array<object>} results The data from the server, expected to be the results array.
+       * @returns {object|null} An object with labels and data points, or null if not found.
+       */
+      function extractChartData(results) {
+        try {
+          // The data received 'results' is now the array we need directly.
+          if (!Array.isArray(results) || results.length === 0) return null;
+
+          // Dynamically find the keys for numbers (for data) and strings (for labels)
+          const firstKey = Object.keys(results[0]).find(
+            (k) => typeof results[0][k] === "number"
+          );
+          const secondKey = Object.keys(results[0]).find(
+            (k) => typeof results[0][k] === "string"
+          );
+
+          if (!firstKey || !secondKey) return null;
+
+          const labels = results.map((item) => item[secondKey]);
+          const dataPoints = results.map((item) => item[firstKey]);
+
+          return { labels, dataPoints, title: `Analysis of: ${firstKey}` };
+        } catch (error) {
+          console.error("Error extracting chart data:", error);
+          return null;
+        }
+      }
+
+      /**
+       * Renders or updates a bar chart with the given data.
+       * @param {string[]} labels - The labels for the chart's axes.
+       * @param {number[]} dataPoints - The numerical data for the bars.
+       * @param {string} title - The title for the chart dataset.
+       */
+      function renderChart({ labels, dataPoints, title }) {
+        if (!chartCanvas) return;
+
+        chartPlaceholder.style.display = "none";
+        chartCanvas.style.display = "block";
+
+        const ctx = chartCanvas.getContext("2d");
+
+        if (resultsChart) {
+          resultsChart.destroy();
+        }
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, "rgba(79, 70, 229, 0.8)");
+        gradient.addColorStop(1, "rgba(129, 140, 248, 0.8)");
+
+        resultsChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: title,
+                data: dataPoints,
+                backgroundColor: gradient,
+                borderColor: "rgba(165, 180, 252, 1)",
+                borderWidth: 1,
+                borderRadius: 4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            indexAxis: "y", // Makes the bar chart horizontal
+            scales: {
+              y: {
+                ticks: { color: "#d1d5db" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+              x: {
+                ticks: { color: "#d1d5db" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: "top",
+                labels: { color: "#d1d5db", font: { size: 14 } },
+              },
+              tooltip: {
+                enabled: true,
+                backgroundColor: "rgba(31, 41, 55, 0.9)",
+                titleColor: "#ffffff",
+                bodyColor: "#d1d5db",
+                borderColor: "rgba(79, 70, 229, 0.5)",
+                borderWidth: 1,
+                padding: 10,
+                cornerRadius: 8,
+              },
+            },
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
